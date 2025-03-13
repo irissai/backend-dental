@@ -1,120 +1,66 @@
+// const mongoose = require('mongoose');
+// const { ObjectId } = require('mongodb');
 const notificationChatModel = require('../Models/notificationChatModel'); // เรียกใช้โมเดล
+// const messageModel = require('../Models/messageModel'); // โมเดลของข้อความ
 
-const createNotification = async (req, res) => {
+// const createNotification = async (req, res) => {
+//     const { chatId, senderId, recipientId, messageId } = req.body;
+
+//     if (!chatId || !senderId || !recipientId || !messageId) {
+//         return res.status(400).json({ message: "chatId, senderId, recipientId, and messageId are required." });
+//     }
+
+//     try {
+//         // Create notification for recipient
+//         const notification = new notificationChatModel({
+//             userId: recipientId,
+//             relatedMessageId: messageId, // Use the messageId passed in the request body
+//             content: `${senderId} sent you a new message`,
+//             isRead: false,
+//         });
+
+//         await notification.save();
+
+//         res.status(200).json({
+//             message: "Notification created successfully",
+//             notification,
+//         });
+//     } catch (error) {
+//         console.error("Error creating notification:", error);
+//         res.status(500).json({
+//             message: "Error creating notification",
+//             error,
+//         });
+//     }
+// };
+
+
+
+
+
+
+// ฟังก์ชันดึงการแจ้งเตือนทั้งหมดของผู้ใช้
+const getNotifications = async (req, res) => {
+    const { senderId } = req.params;
+
     try {
-        const { userId, type, relatedMessageId, content } = req.body;
-
-        // Create the new notification
-        const newNotification = await notificationChatModel.create({
-            userId,
-            type,
-            relatedMessageId,
-            content,
-            isRead: false,
-        });
-
-        res.status(201).json({
-            success: true,
-            message: "Notification created successfully",
-            data: newNotification,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Error creating notification",
-            error: error.message,
-        });
-    }
-};
-
-// ดึงการแจ้งเตือนของผู้ใช้สำหรับแชทที่เลือก
-const getUserNotifications = async (req, res) => {
-    try {
-        const { userId, chatId } = req.params;
-
-        // ดึงข้อมูลการแจ้งเตือนที่ยังไม่อ่านของผู้ใช้สำหรับแชทที่เลือก
-        const notifications = await notificationChatModel
-            .find({ userId, chatId, isRead: false }) // เฉพาะการแจ้งเตือนที่ยังไม่ได้อ่าน
-            .sort({ createdAt: -1 }); // เรียงลำดับจากใหม่ไปเก่า
+        const notifications = await notificationChatModel.find({ senderId })
+            .sort({ createdAt: -1 })
+            .exec();
 
         res.status(200).json({
-            success: true,
-            message: "User notifications fetched successfully",
-            data: notifications,
+            message: "Notifications fetched successfully",
+            notifications,
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({
-            success: false,
             message: "Error fetching notifications",
-            error: error.message,
+            error,
         });
     }
 };
 
-// อัปเดตสถานะการอ่านการแจ้งเตือน
-const markAsRead = async (req, res) => {
-    try {
-        const { notificationId } = req.params;
 
-        // อัปเดตสถานะ isRead เป็น true
-        const updatedNotification = await notificationChatModel.findByIdAndUpdate(
-            notificationId,
-            { isRead: true },
-            { new: true } // ส่งคืนข้อมูลที่อัปเดต
-        );
 
-        if (!updatedNotification) {
-            return res.status(404).json({
-                success: false,
-                message: "Notification not found",
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Notification marked as read",
-            data: updatedNotification,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Error updating notification",
-            error: error.message,
-        });
-    }
-};
-
-// ลบการแจ้งเตือน
-const deleteNotification = async (req, res) => {
-    try {
-        const { notificationId } = req.params;
-
-        // ลบการแจ้งเตือน
-        const deletedNotification = await notificationChatModel.findByIdAndDelete(notificationId);
-
-        if (!deletedNotification) {
-            return res.status(404).json({
-                success: false,
-                message: "Notification not found",
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Notification deleted successfully",
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Error deleting notification",
-            error: error.message,
-        });
-    }
-};
-
-module.exports = {
-    createNotification,
-    getUserNotifications,
-    markAsRead,
-    deleteNotification,
-};
+module.exports = {getNotifications};
