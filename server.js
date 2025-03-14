@@ -13,33 +13,19 @@ const quizRoute = require("./Routes/quizRoute");
 const notiRoute = require("./Routes/notiChat")
 const bookmarkRoute = require("./Routes/bookmarkRoute")
 const bodyParser = require('body-parser');
-// const http = require("http");
+const http = require("http");
 const { Server } = require("socket.io"); // เพิ่มการใช้งาน socket.io
 const path = require("path");
 require('dotenv').config();
-const fs = require('fs');
-const https = require('https');
+
 
 // console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
 // console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET);
 // console.log("GOOGLE_CALLBACK:", process.env.GOOGLE_CALLBACK);
-// โหลดไฟล์ SSL certificate และ key
-const privateKey = fs.readFileSync('./server-key.key', 'utf8');
-const certificate = fs.readFileSync('./server.crt', 'utf8');
-// const ca = fs.readFileSync('./server.csr', 'utf8');
-
-// รวมไฟล์ SSL เพื่อสร้าง options
-const credentials = {
-  key: privateKey,
-  cert: certificate,
-};
-
-
 
 // Socket Map to store userId -> socketId mapping
 const socketMap = new Map(); // Declare socketMap as a Map
 const app = express();
-const server = https.createServer(credentials, app); // ใช้ HTTPS server
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
@@ -74,15 +60,23 @@ const corsOptions = {
 };
 
 
+
 app.use(cors(corsOptions)); // ใช้ CORS สำหรับ HTTP requests 
 
-
+// Set up HTTP server
+// const server = http.createServer(app);
+// const server = http.createServer((req, res) => {
+//   res.writeHead(200, { 'Content-Type': 'text/plain' });
+//   res.end('Socket.io Server is running');
+// });
 const port = process.env.PORT || 8080;
-server.listen(port, () => {
+const server = app.listen(port, () => {
   console.log("Server running on port", port);
 });
 
+// Start server
 
+// ตั้งค่า Socket.io หลังจากสร้าง server
 // ตั้งค่า Socket.io หลังจากสร้าง server
 const io = new Server(server, {
   cors: {
@@ -96,7 +90,7 @@ const io = new Server(server, {
 
 
 // ให้ Express เสิร์ฟไฟล์ Frontend หลังจาก API
-app.use(express.static(path.join(__dirname, "./build")));
+app.use(express.static(path.join(__dirname, "./dist")));
 
 //Router
 app.get("/", (req, res) => {
@@ -114,7 +108,7 @@ app.use("/api/bookmark", bookmarkRoute)
 
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "./build/index.html"));
+  res.sendFile(path.join(__dirname, "./dist/index.html"));
 });
 
 
