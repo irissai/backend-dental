@@ -15,7 +15,9 @@ const bookmarkRoute = require("./Routes/bookmarkRoute")
 const bodyParser = require('body-parser');
 const http = require("http");
 const { Server } = require("socket.io"); // เพิ่มการใช้งาน socket.io
+const path = require("path");
 require('dotenv').config();
+
 
 // console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
 // console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET);
@@ -113,6 +115,12 @@ app.use("/api/notiChat", notiRoute)
 app.use("/api/bookmark", bookmarkRoute)
 
 
+// ให้ Express เสิร์ฟไฟล์ Frontend หลังจาก API
+app.use(express.static(path.join(__dirname, "build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
 
 
 const uri = process.env.DBURI;
