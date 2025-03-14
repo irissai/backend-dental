@@ -86,19 +86,11 @@ const io = new Server(server, {
     credentials: true
   },
   transports: ['websocket', 'polling'], // เผื่อว่ามีปัญหากับ WebSocket
-  // path: '/socket.io',
 });
 
 
-
-
-
-// เริ่ม server หลังจากตั้งค่า io
-// server.listen(port, () => {
-//   console.log(`Server running on port: ${port}`);
-// }).on('error', (err) => {
-//   console.error("Failed to start server:", err);
-// });
+// ให้ Express เสิร์ฟไฟล์ Frontend หลังจาก API
+app.use(express.static(path.join(__dirname, "./build")));
 
 //Router
 app.get("/", (req, res) => {
@@ -114,9 +106,6 @@ app.use("/api/quiz", quizRoute);
 app.use("/api/notiChat", notiRoute)
 app.use("/api/bookmark", bookmarkRoute)
 
-
-// ให้ Express เสิร์ฟไฟล์ Frontend หลังจาก API
-app.use(express.static(path.join(__dirname, "./build")));
 
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "./build/index.html"));
