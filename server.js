@@ -53,7 +53,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.json());
 
 const corsOptions = {
-  origin: ['http://localhost:5173', 'https://itweb0867.cpkkuhost.com'],
+  origin: ['http://localhost:5173', 'https://itweb0867.cpkkuhost.com','https://backend-dental-production.up.railway.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   // allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],
   // credentials: true, // ใช้สำหรับอนุญาต cookie หรือข้อมูล session
