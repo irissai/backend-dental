@@ -6,9 +6,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "start": "node server.js",
- "build": "cd ../frontend && npm run build && cd ../backend && robocopy ../frontend/dist ./build /E /NFL /NDL"
-  
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
